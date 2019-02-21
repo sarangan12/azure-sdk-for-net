@@ -12,37 +12,38 @@ namespace Tooling.Models
     using System.Collections.Generic;
     using System.Linq;
 
-    /// <summary>
-    /// Parameters for linter validation (semantic and model)
-    /// </summary>
-    public partial class LinterParameters
+    public partial class LinterValidationWithFilesResult : LinterValidationResult
     {
         /// <summary>
-        /// Initializes a new instance of the LinterParameters class.
+        /// Initializes a new instance of the LinterValidationWithFilesResult
+        /// class.
         /// </summary>
-        public LinterParameters()
+        public LinterValidationWithFilesResult()
         {
             CustomInit();
         }
 
         /// <summary>
-        /// Initializes a new instance of the LinterParameters class.
+        /// Initializes a new instance of the LinterValidationWithFilesResult
+        /// class.
         /// </summary>
-        /// <param name="fileUrls">The file urls to be validated. Note that for
-        /// Github urls, those can be either raw content files or the normal
-        /// files</param>
+        /// <param name="validationId">Validation Id.</param>
+        /// <param name="commitHash">Git commit hash of where the validated
+        /// files originate.</param>
+        /// <param name="validationStatus">Task Status. Possible values
+        /// include: 'NotStarted', 'InProgress', 'Finished', 'Failed'</param>
+        /// <param name="createdAt">Created At Time</param>
+        /// <param name="status">Status</param>
+        /// <param name="issues">Linter Validation issues.</param>
+        /// <param name="runtimeException">When present, describes the reason
+        /// the validation couldn't be run.</param>
         /// <param name="directives">Directives to apply to the specs before
         /// linting like suppression and transformation.</param>
-        /// <param name="filterType">Filter on the type of issues to be
-        /// reported. Possible values include: 'ARMViolation', 'SDKViolation',
-        /// 'Documentation'</param>
-        /// <param name="token">Token to access private repositories.</param>
-        public LinterParameters(IList<string> fileUrls, IList<Directive> directives = default(IList<Directive>), LinterIssueCategory? filterType = default(LinterIssueCategory?), string token = default(string))
+        public LinterValidationWithFilesResult(string validationId, string commitHash, ValidationStatus validationStatus, string createdAt, string status, IList<LinterIssue> issues, IList<string> fileUrls, ErrorObject runtimeException = default(ErrorObject), IList<Directive> directives = default(IList<Directive>))
+            : base(validationId, commitHash, validationStatus, createdAt, status, issues, runtimeException)
         {
             FileUrls = fileUrls;
             Directives = directives;
-            FilterType = filterType;
-            Token = token;
             CustomInit();
         }
 
@@ -52,8 +53,6 @@ namespace Tooling.Models
         partial void CustomInit();
 
         /// <summary>
-        /// Gets or sets the file urls to be validated. Note that for Github
-        /// urls, those can be either raw content files or the normal files
         /// </summary>
         [JsonProperty(PropertyName = "fileUrls")]
         public IList<string> FileUrls { get; set; }
@@ -66,26 +65,14 @@ namespace Tooling.Models
         public IList<Directive> Directives { get; set; }
 
         /// <summary>
-        /// Gets or sets filter on the type of issues to be reported. Possible
-        /// values include: 'ARMViolation', 'SDKViolation', 'Documentation'
-        /// </summary>
-        [JsonProperty(PropertyName = "filterType")]
-        public LinterIssueCategory? FilterType { get; set; }
-
-        /// <summary>
-        /// Gets or sets token to access private repositories.
-        /// </summary>
-        [JsonProperty(PropertyName = "token")]
-        public string Token { get; set; }
-
-        /// <summary>
         /// Validate the object.
         /// </summary>
         /// <exception cref="ValidationException">
         /// Thrown if validation fails
         /// </exception>
-        public virtual void Validate()
+        public override void Validate()
         {
+            base.Validate();
             if (FileUrls == null)
             {
                 throw new ValidationException(ValidationRules.CannotBeNull, "FileUrls");

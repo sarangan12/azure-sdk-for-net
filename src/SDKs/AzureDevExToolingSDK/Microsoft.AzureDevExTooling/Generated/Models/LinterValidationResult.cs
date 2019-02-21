@@ -8,6 +8,8 @@ namespace Tooling.Models
 {
     using Microsoft.Rest;
     using Newtonsoft.Json;
+    using System.Collections;
+    using System.Collections.Generic;
     using System.Linq;
 
     /// <summary>
@@ -27,32 +29,24 @@ namespace Tooling.Models
         /// Initializes a new instance of the LinterValidationResult class.
         /// </summary>
         /// <param name="validationId">Validation Id.</param>
-        /// <param name="commitHash">Commit Hash</param>
-        /// <param name="configPath">Config Path</param>
-        /// <param name="apiTag">API Tag</param>
-        /// <param name="branch">Branch</param>
-        /// <param name="repoUrl">Repository URL</param>
-        /// <param name="isDone">Task Status</param>
-        /// <param name="isFailed">Task Status</param>
+        /// <param name="commitHash">Git commit hash of where the validated
+        /// files originate.</param>
+        /// <param name="validationStatus">Task Status. Possible values
+        /// include: 'NotStarted', 'InProgress', 'Finished', 'Failed'</param>
         /// <param name="createdAt">Created At Time</param>
-        /// <param name="tries">Name of the repository.</param>
         /// <param name="status">Status</param>
-        /// <param name="validationResults">Validation results from
-        /// Linter</param>
-        public LinterValidationResult(string validationId, string commitHash, string configPath, string apiTag, string branch, string repoUrl, bool isDone, bool isFailed, string createdAt, int tries, string status, LinterValidationResultValidationResults validationResults)
+        /// <param name="issues">Linter Validation issues.</param>
+        /// <param name="runtimeException">When present, describes the reason
+        /// the validation couldn't be run.</param>
+        public LinterValidationResult(string validationId, string commitHash, ValidationStatus validationStatus, string createdAt, string status, IList<LinterIssue> issues, ErrorObject runtimeException = default(ErrorObject))
         {
             ValidationId = validationId;
             CommitHash = commitHash;
-            ConfigPath = configPath;
-            ApiTag = apiTag;
-            Branch = branch;
-            RepoUrl = repoUrl;
-            IsDone = isDone;
-            IsFailed = isFailed;
+            ValidationStatus = validationStatus;
             CreatedAt = createdAt;
-            Tries = tries;
             Status = status;
-            ValidationResults = validationResults;
+            RuntimeException = runtimeException;
+            Issues = issues;
             CustomInit();
         }
 
@@ -68,46 +62,18 @@ namespace Tooling.Models
         public string ValidationId { get; set; }
 
         /// <summary>
-        /// Gets or sets commit Hash
+        /// Gets or sets git commit hash of where the validated files
+        /// originate.
         /// </summary>
         [JsonProperty(PropertyName = "commitHash")]
         public string CommitHash { get; set; }
 
         /// <summary>
-        /// Gets or sets config Path
+        /// Gets or sets task Status. Possible values include: 'NotStarted',
+        /// 'InProgress', 'Finished', 'Failed'
         /// </summary>
-        [JsonProperty(PropertyName = "configPath")]
-        public string ConfigPath { get; set; }
-
-        /// <summary>
-        /// Gets or sets API Tag
-        /// </summary>
-        [JsonProperty(PropertyName = "apiTag")]
-        public string ApiTag { get; set; }
-
-        /// <summary>
-        /// Gets or sets branch
-        /// </summary>
-        [JsonProperty(PropertyName = "branch")]
-        public string Branch { get; set; }
-
-        /// <summary>
-        /// Gets or sets repository URL
-        /// </summary>
-        [JsonProperty(PropertyName = "repoUrl")]
-        public string RepoUrl { get; set; }
-
-        /// <summary>
-        /// Gets or sets task Status
-        /// </summary>
-        [JsonProperty(PropertyName = "isDone")]
-        public bool IsDone { get; set; }
-
-        /// <summary>
-        /// Gets or sets task Status
-        /// </summary>
-        [JsonProperty(PropertyName = "isFailed")]
-        public bool IsFailed { get; set; }
+        [JsonProperty(PropertyName = "validationStatus")]
+        public ValidationStatus ValidationStatus { get; set; }
 
         /// <summary>
         /// Gets or sets created At Time
@@ -116,22 +82,23 @@ namespace Tooling.Models
         public string CreatedAt { get; set; }
 
         /// <summary>
-        /// Gets or sets name of the repository.
-        /// </summary>
-        [JsonProperty(PropertyName = "tries")]
-        public int Tries { get; set; }
-
-        /// <summary>
         /// Gets or sets status
         /// </summary>
         [JsonProperty(PropertyName = "status")]
         public string Status { get; set; }
 
         /// <summary>
-        /// Gets or sets validation results from Linter
+        /// Gets or sets when present, describes the reason the validation
+        /// couldn't be run.
         /// </summary>
-        [JsonProperty(PropertyName = "validationResults")]
-        public LinterValidationResultValidationResults ValidationResults { get; set; }
+        [JsonProperty(PropertyName = "runtimeException")]
+        public ErrorObject RuntimeException { get; set; }
+
+        /// <summary>
+        /// Gets or sets linter Validation issues.
+        /// </summary>
+        [JsonProperty(PropertyName = "issues")]
+        public IList<LinterIssue> Issues { get; set; }
 
         /// <summary>
         /// Validate the object.
@@ -149,22 +116,6 @@ namespace Tooling.Models
             {
                 throw new ValidationException(ValidationRules.CannotBeNull, "CommitHash");
             }
-            if (ConfigPath == null)
-            {
-                throw new ValidationException(ValidationRules.CannotBeNull, "ConfigPath");
-            }
-            if (ApiTag == null)
-            {
-                throw new ValidationException(ValidationRules.CannotBeNull, "ApiTag");
-            }
-            if (Branch == null)
-            {
-                throw new ValidationException(ValidationRules.CannotBeNull, "Branch");
-            }
-            if (RepoUrl == null)
-            {
-                throw new ValidationException(ValidationRules.CannotBeNull, "RepoUrl");
-            }
             if (CreatedAt == null)
             {
                 throw new ValidationException(ValidationRules.CannotBeNull, "CreatedAt");
@@ -173,9 +124,19 @@ namespace Tooling.Models
             {
                 throw new ValidationException(ValidationRules.CannotBeNull, "Status");
             }
-            if (ValidationResults == null)
+            if (Issues == null)
             {
-                throw new ValidationException(ValidationRules.CannotBeNull, "ValidationResults");
+                throw new ValidationException(ValidationRules.CannotBeNull, "Issues");
+            }
+            if (Issues != null)
+            {
+                foreach (var element in Issues)
+                {
+                    if (element != null)
+                    {
+                        element.Validate();
+                    }
+                }
             }
         }
     }

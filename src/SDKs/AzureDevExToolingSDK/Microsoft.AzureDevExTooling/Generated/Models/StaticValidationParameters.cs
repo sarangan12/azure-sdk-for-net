@@ -28,12 +28,13 @@ namespace Tooling.Models
         /// <summary>
         /// Initializes a new instance of the StaticValidationParameters class.
         /// </summary>
-        /// <param name="commitHash">Commit Hash</param>
+        /// <param name="fileUrls">The file urls to be validated. Note that for
+        /// Github urls, those can be either raw content files or the normal
+        /// files</param>
         /// <param name="token">Token to access private repositories.</param>
-        public StaticValidationParameters(IList<string> fileUrls, string commitHash, string token = default(string))
+        public StaticValidationParameters(IList<string> fileUrls, string token = default(string))
         {
             FileUrls = fileUrls;
-            CommitHash = commitHash;
             Token = token;
             CustomInit();
         }
@@ -44,15 +45,11 @@ namespace Tooling.Models
         partial void CustomInit();
 
         /// <summary>
+        /// Gets or sets the file urls to be validated. Note that for Github
+        /// urls, those can be either raw content files or the normal files
         /// </summary>
         [JsonProperty(PropertyName = "fileUrls")]
         public IList<string> FileUrls { get; set; }
-
-        /// <summary>
-        /// Gets or sets commit Hash
-        /// </summary>
-        [JsonProperty(PropertyName = "commitHash")]
-        public string CommitHash { get; set; }
 
         /// <summary>
         /// Gets or sets token to access private repositories.
@@ -71,10 +68,6 @@ namespace Tooling.Models
             if (FileUrls == null)
             {
                 throw new ValidationException(ValidationRules.CannotBeNull, "FileUrls");
-            }
-            if (CommitHash == null)
-            {
-                throw new ValidationException(ValidationRules.CannotBeNull, "CommitHash");
             }
         }
     }

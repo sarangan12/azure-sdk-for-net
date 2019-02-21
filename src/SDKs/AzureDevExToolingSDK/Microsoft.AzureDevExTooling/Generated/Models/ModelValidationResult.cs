@@ -8,6 +8,8 @@ namespace Tooling.Models
 {
     using Microsoft.Rest;
     using Newtonsoft.Json;
+    using System.Collections;
+    using System.Collections.Generic;
     using System.Linq;
 
     /// <summary>
@@ -26,11 +28,24 @@ namespace Tooling.Models
         /// <summary>
         /// Initializes a new instance of the ModelValidationResult class.
         /// </summary>
+        /// <param name="validationId">Validation Id.</param>
+        /// <param name="validationStatus">Task Status. Possible values
+        /// include: 'NotStarted', 'InProgress', 'Finished', 'Failed'</param>
+        /// <param name="createdAt">Created At Time</param>
+        /// <param name="issues">Validation results from Model
+        /// Validator</param>
         /// <param name="status">Status</param>
-        public ModelValidationResult(string status, ModelValidationResultValidationResult validationResult)
+        /// <param name="runtimeException">When present, describes the reason
+        /// the validation couldn't be run.</param>
+        public ModelValidationResult(string validationId, IList<string> fileUrls, ValidationStatus validationStatus, string createdAt, IList<ModelValidationIssue> issues, string status, ErrorObject runtimeException = default(ErrorObject))
         {
+            ValidationId = validationId;
+            FileUrls = fileUrls;
+            ValidationStatus = validationStatus;
+            RuntimeException = runtimeException;
+            CreatedAt = createdAt;
+            Issues = issues;
             Status = status;
-            ValidationResult = validationResult;
             CustomInit();
         }
 
@@ -40,15 +55,47 @@ namespace Tooling.Models
         partial void CustomInit();
 
         /// <summary>
+        /// Gets or sets validation Id.
+        /// </summary>
+        [JsonProperty(PropertyName = "validationId")]
+        public string ValidationId { get; set; }
+
+        /// <summary>
+        /// </summary>
+        [JsonProperty(PropertyName = "fileUrls")]
+        public IList<string> FileUrls { get; set; }
+
+        /// <summary>
+        /// Gets or sets task Status. Possible values include: 'NotStarted',
+        /// 'InProgress', 'Finished', 'Failed'
+        /// </summary>
+        [JsonProperty(PropertyName = "validationStatus")]
+        public ValidationStatus ValidationStatus { get; set; }
+
+        /// <summary>
+        /// Gets or sets when present, describes the reason the validation
+        /// couldn't be run.
+        /// </summary>
+        [JsonProperty(PropertyName = "runtimeException")]
+        public ErrorObject RuntimeException { get; set; }
+
+        /// <summary>
+        /// Gets or sets created At Time
+        /// </summary>
+        [JsonProperty(PropertyName = "createdAt")]
+        public string CreatedAt { get; set; }
+
+        /// <summary>
+        /// Gets or sets validation results from Model Validator
+        /// </summary>
+        [JsonProperty(PropertyName = "issues")]
+        public IList<ModelValidationIssue> Issues { get; set; }
+
+        /// <summary>
         /// Gets or sets status
         /// </summary>
         [JsonProperty(PropertyName = "status")]
         public string Status { get; set; }
-
-        /// <summary>
-        /// </summary>
-        [JsonProperty(PropertyName = "validationResult")]
-        public ModelValidationResultValidationResult ValidationResult { get; set; }
 
         /// <summary>
         /// Validate the object.
@@ -58,17 +105,35 @@ namespace Tooling.Models
         /// </exception>
         public virtual void Validate()
         {
+            if (ValidationId == null)
+            {
+                throw new ValidationException(ValidationRules.CannotBeNull, "ValidationId");
+            }
+            if (FileUrls == null)
+            {
+                throw new ValidationException(ValidationRules.CannotBeNull, "FileUrls");
+            }
+            if (CreatedAt == null)
+            {
+                throw new ValidationException(ValidationRules.CannotBeNull, "CreatedAt");
+            }
+            if (Issues == null)
+            {
+                throw new ValidationException(ValidationRules.CannotBeNull, "Issues");
+            }
             if (Status == null)
             {
                 throw new ValidationException(ValidationRules.CannotBeNull, "Status");
             }
-            if (ValidationResult == null)
+            if (Issues != null)
             {
-                throw new ValidationException(ValidationRules.CannotBeNull, "ValidationResult");
-            }
-            if (ValidationResult != null)
-            {
-                ValidationResult.Validate();
+                foreach (var element in Issues)
+                {
+                    if (element != null)
+                    {
+                        element.Validate();
+                    }
+                }
             }
         }
     }

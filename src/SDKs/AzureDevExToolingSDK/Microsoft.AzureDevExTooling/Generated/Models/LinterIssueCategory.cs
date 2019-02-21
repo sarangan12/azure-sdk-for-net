@@ -21,8 +21,6 @@ namespace Tooling.Models
         ARMViolation,
         [EnumMember(Value = "SDKViolation")]
         SDKViolation,
-        [EnumMember(Value = "RPCViolation")]
-        RPCViolation,
         [EnumMember(Value = "Documentation")]
         Documentation
     }
@@ -41,8 +39,6 @@ namespace Tooling.Models
                     return "ARMViolation";
                 case LinterIssueCategory.SDKViolation:
                     return "SDKViolation";
-                case LinterIssueCategory.RPCViolation:
-                    return "RPCViolation";
                 case LinterIssueCategory.Documentation:
                     return "Documentation";
             }
@@ -57,8 +53,6 @@ namespace Tooling.Models
                     return LinterIssueCategory.ARMViolation;
                 case "SDKViolation":
                     return LinterIssueCategory.SDKViolation;
-                case "RPCViolation":
-                    return LinterIssueCategory.RPCViolation;
                 case "Documentation":
                     return LinterIssueCategory.Documentation;
             }

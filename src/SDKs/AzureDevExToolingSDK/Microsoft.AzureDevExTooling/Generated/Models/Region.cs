@@ -23,6 +23,8 @@ namespace Tooling.Models
         Prod,
         [EnumMember(Value = "canary")]
         Canary,
+        [EnumMember(Value = "all")]
+        All,
         [EnumMember(Value = "westcentralus")]
         Westcentralus,
         [EnumMember(Value = "centraluseuap")]
@@ -47,6 +49,8 @@ namespace Tooling.Models
                     return "prod";
                 case Region.Canary:
                     return "canary";
+                case Region.All:
+                    return "all";
                 case Region.Westcentralus:
                     return "westcentralus";
                 case Region.Centraluseuap:
@@ -67,6 +71,8 @@ namespace Tooling.Models
                     return Region.Prod;
                 case "canary":
                     return Region.Canary;
+                case "all":
+                    return Region.All;
                 case "westcentralus":
                     return Region.Westcentralus;
                 case "centraluseuap":

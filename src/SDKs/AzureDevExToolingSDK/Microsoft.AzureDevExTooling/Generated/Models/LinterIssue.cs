@@ -6,9 +6,8 @@
 
 namespace Tooling.Models
 {
+    using Microsoft.Rest;
     using Newtonsoft.Json;
-    using System.Collections;
-    using System.Collections.Generic;
     using System.Linq;
 
     /// <summary>
@@ -27,15 +26,26 @@ namespace Tooling.Models
         /// <summary>
         /// Initializes a new instance of the LinterIssue class.
         /// </summary>
-        /// <param name="details">Details of the Linter Validation
-        /// result</param>
-        /// <param name="source">Source of the Linter Validation result</param>
-        /// <param name="severity">Severity of the issue</param>
-        public LinterIssue(LinterIssueDetails details = default(LinterIssueDetails), IList<LinterIssueSource> source = default(IList<LinterIssueSource>), string severity = default(string))
+        /// <param name="severity">Severity of the issue. Possible values
+        /// include: 'warning', 'error'</param>
+        /// <param name="code">Code of the issue.</param>
+        /// <param name="message">Message of the issue.</param>
+        /// <param name="id">Id of the issue.</param>
+        /// <param name="validationCategory">Validation category of the issue.
+        /// Possible values include: 'ARMViolation', 'SDKViolation',
+        /// 'Documentation'</param>
+        /// <param name="source">Source of the Linter Validation
+        /// result.</param>
+        /// <param name="docUrl">The url to the issue's documentation.</param>
+        public LinterIssue(LinterIssueSeverity severity, string code, string message, string id, LinterIssueCategory validationCategory, IssueSourceLocation source, string docUrl = default(string))
         {
-            Details = details;
-            Source = source;
             Severity = severity;
+            Code = code;
+            Message = message;
+            DocUrl = docUrl;
+            Id = id;
+            ValidationCategory = validationCategory;
+            Source = source;
             CustomInit();
         }
 
@@ -45,22 +55,73 @@ namespace Tooling.Models
         partial void CustomInit();
 
         /// <summary>
-        /// Gets or sets details of the Linter Validation result
-        /// </summary>
-        [JsonProperty(PropertyName = "details")]
-        public LinterIssueDetails Details { get; set; }
-
-        /// <summary>
-        /// Gets or sets source of the Linter Validation result
-        /// </summary>
-        [JsonProperty(PropertyName = "source")]
-        public IList<LinterIssueSource> Source { get; set; }
-
-        /// <summary>
-        /// Gets or sets severity of the issue
+        /// Gets or sets severity of the issue. Possible values include:
+        /// 'warning', 'error'
         /// </summary>
         [JsonProperty(PropertyName = "severity")]
-        public string Severity { get; set; }
+        public LinterIssueSeverity Severity { get; set; }
 
+        /// <summary>
+        /// Gets or sets code of the issue.
+        /// </summary>
+        [JsonProperty(PropertyName = "code")]
+        public string Code { get; set; }
+
+        /// <summary>
+        /// Gets or sets message of the issue.
+        /// </summary>
+        [JsonProperty(PropertyName = "message")]
+        public string Message { get; set; }
+
+        /// <summary>
+        /// Gets or sets the url to the issue's documentation.
+        /// </summary>
+        [JsonProperty(PropertyName = "docUrl")]
+        public string DocUrl { get; set; }
+
+        /// <summary>
+        /// Gets or sets id of the issue.
+        /// </summary>
+        [JsonProperty(PropertyName = "id")]
+        public string Id { get; set; }
+
+        /// <summary>
+        /// Gets or sets validation category of the issue. Possible values
+        /// include: 'ARMViolation', 'SDKViolation', 'Documentation'
+        /// </summary>
+        [JsonProperty(PropertyName = "validationCategory")]
+        public LinterIssueCategory ValidationCategory { get; set; }
+
+        /// <summary>
+        /// Gets or sets source of the Linter Validation result.
+        /// </summary>
+        [JsonProperty(PropertyName = "source")]
+        public IssueSourceLocation Source { get; set; }
+
+        /// <summary>
+        /// Validate the object.
+        /// </summary>
+        /// <exception cref="ValidationException">
+        /// Thrown if validation fails
+        /// </exception>
+        public virtual void Validate()
+        {
+            if (Code == null)
+            {
+                throw new ValidationException(ValidationRules.CannotBeNull, "Code");
+            }
+            if (Message == null)
+            {
+                throw new ValidationException(ValidationRules.CannotBeNull, "Message");
+            }
+            if (Id == null)
+            {
+                throw new ValidationException(ValidationRules.CannotBeNull, "Id");
+            }
+            if (Source == null)
+            {
+                throw new ValidationException(ValidationRules.CannotBeNull, "Source");
+            }
+        }
     }
 }

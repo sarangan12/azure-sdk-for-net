@@ -6,12 +6,12 @@
   <PropertyGroup>
     <PackageId>AzureDevExTooling</PackageId>
     <Description></Description>
-    <Version>0.9.0</Version>
+    <Version>0.10.0</Version>
     <AssemblyName>AzureDevExTooling</AssemblyName>
     <PackageTags>MicrosoftAzure Management</PackageTags>
     <PackageReleaseNotes>
       <![CDATA[
-      
+        Released on 2/21: New APIs for Diff Tool
       ]]>
     </PackageReleaseNotes>
   </PropertyGroup>
